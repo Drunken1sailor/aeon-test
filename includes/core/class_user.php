@@ -3,33 +3,84 @@
 class User {
 
     // GENERAL
+    public static function user_info($d) {
+        // vars
+        $user_id = isset($d['user_id']) && is_numeric($d['user_id']) ? $d['user_id'] : 0;
+        $phone = isset($d['phone']) ? preg_replace('~\D+~', '', $d['phone']) : 0;
 
-    public static function user_info($user_id) {
-        $q = DB::query("SELECT user_id, plot_id, first_name, last_name, phone, email, last_login, access FROM users WHERE user_id='".$user_id."' LIMIT 1;") or die (DB::error());
-        if ($row = DB::fetch_row($q)) {
-            return [
-                'id' => (int) $row['user_id'],
-                'plot_id' => $row['plot_id'],
-                'first_name' => $row['first_name'],
-                'last_name' => $row['last_name'],
-                'phone' => phone_formatting($row['phone']),
-                'email' => $row['email'],
-                'last_login' => date('Y/m/d',$row['last_login']),
-                'access' => (int) $row['access']
-            ];
-        } else { 
-            return [
-                'id' => 0,
-                'plot_id' => '0',
-                'first_name' => '',
-                'last_name' => '',
-                'phone' => '',
-                'email' => '',
-                'last_login' => '',
-                'access' => 0
-            ];
+        if(!is_string($d)){
+            // where
+            if ($user_id) $where = "user_id='".$user_id."'";
+            else if ($phone) $where = "phone='".$phone."'";
+            else return [];
+            // info
+            $q = DB::query("SELECT user_id, phone, access FROM users WHERE ".$where." LIMIT 1;") or die (DB::error());
+            if ($row = DB::fetch_row($q)) {
+                return [
+                    'id' => (int) $row['user_id'],
+                    'access' => (int) $row['access']
+                ];
+            } else {
+                return [
+                    'id' => 0,
+                    'access' => 0
+                ];
+            }
+        }else{
+            $q = DB::query("SELECT user_id, plot_id, first_name, last_name, phone, email, last_login, access FROM users WHERE user_id='".$d."' LIMIT 1;") or die (DB::error());
+            if ($row = DB::fetch_row($q)) {
+                return [
+                    'id' => (int) $row['user_id'],
+                    'plot_id' => $row['plot_id'],
+                    'first_name' => $row['first_name'],
+                    'last_name' => $row['last_name'],
+                    'phone' => phone_formatting($row['phone']),
+                    'email' => $row['email'],
+                    'last_login' => date('Y/m/d',$row['last_login']),
+                    'access' => (int) $row['access']
+                ];
+            } else { 
+                return [
+                    'id' => 0,
+                    'plot_id' => '0',
+                    'first_name' => '',
+                    'last_name' => '',
+                    'phone' => '',
+                    'email' => '',
+                    'last_login' => '',
+                    'access' => 0
+                ];
+            }
         }
+
+
     }
+    // public static function user_info($user_id) {
+    //     $q = DB::query("SELECT user_id, plot_id, first_name, last_name, phone, email, last_login, access FROM users WHERE user_id='".$user_id."' LIMIT 1;") or die (DB::error());
+    //     if ($row = DB::fetch_row($q)) {
+    //         return [
+    //             'id' => (int) $row['user_id'],
+    //             'plot_id' => $row['plot_id'],
+    //             'first_name' => $row['first_name'],
+    //             'last_name' => $row['last_name'],
+    //             'phone' => phone_formatting($row['phone']),
+    //             'email' => $row['email'],
+    //             'last_login' => date('Y/m/d',$row['last_login']),
+    //             'access' => (int) $row['access']
+    //         ];
+    //     } else { 
+    //         return [
+    //             'id' => 0,
+    //             'plot_id' => '0',
+    //             'first_name' => '',
+    //             'last_name' => '',
+    //             'phone' => '',
+    //             'email' => '',
+    //             'last_login' => '',
+    //             'access' => 0
+    //         ];
+    //     }
+    // }
 
     public static function users_list_plots($number) {
         // vars
